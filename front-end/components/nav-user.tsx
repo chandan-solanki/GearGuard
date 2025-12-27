@@ -45,7 +45,8 @@ export function NavUser({
 
   const handleLogout = () => {
     // Clear localStorage
-    localStorage.removeItem("token")
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
     localStorage.removeItem("user")
     
     // Show success message

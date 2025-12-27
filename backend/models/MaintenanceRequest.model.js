@@ -5,6 +5,7 @@ export class MaintenanceRequestModel {
     const {
       subject,
       type,
+      priority,
       description,
       equipment_id,
       department_id,
@@ -16,14 +17,15 @@ export class MaintenanceRequestModel {
 
     const sql = `
       INSERT INTO maintenance_requests (
-        subject, type, description, equipment_id, department_id,
+        subject, type, priority, description, equipment_id, department_id,
         team_id, technician_id, scheduled_date, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const result = await query(sql, [
       subject,
       type,
+      priority || 'medium',
       description || null,
       equipment_id,
       department_id,
@@ -90,6 +92,11 @@ export class MaintenanceRequestModel {
       params.push(filters.type);
     }
 
+    if (filters.priority) {
+      sql += ' AND mr.priority = ?';
+      params.push(filters.priority);
+    }
+
     if (filters.overdue) {
       sql += ' AND mr.scheduled_date < NOW() AND mr.status NOT IN ("repaired", "scrap")';
     }
@@ -99,11 +106,12 @@ export class MaintenanceRequestModel {
       params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
-    sql += ' ORDER BY mr.created_at DESC';
+    sql += ' ORDER BY FIELD(mr.priority, "critical", "high", "medium", "low"), mr.created_at DESC';
 
     if (filters.limit) {
-      sql += ' LIMIT ? OFFSET ?';
-      params.push(parseInt(filters.limit), parseInt(filters.offset || 0));
+      const limit = parseInt(filters.limit, 10) || 10;
+      const offset = parseInt(filters.offset, 10) || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
     }
 
     return await query(sql, params);
@@ -112,7 +120,8 @@ export class MaintenanceRequestModel {
   static async findById(id) {
     const sql = `
       SELECT mr.*,
-             e.name as equipment_name, e.serial_number, e.category,
+             e.name as equipment_name, e.serial_number, 
+             ec.name as category_name, ec.responsible as category_responsible, ec.company_name as category_company,
              d.name as department_name,
              mt.name as team_name,
              u.name as created_by_name, u.email as created_by_email,
@@ -124,6 +133,7 @@ export class MaintenanceRequestModel {
              END as is_overdue
       FROM maintenance_requests mr
       INNER JOIN equipment e ON mr.equipment_id = e.id
+      INNER JOIN equipment_category ec ON e.category_id = ec.id
       INNER JOIN departments d ON mr.department_id = d.id
       INNER JOIN maintenance_teams mt ON mr.team_id = mt.id
       INNER JOIN users u ON mr.created_by = u.id

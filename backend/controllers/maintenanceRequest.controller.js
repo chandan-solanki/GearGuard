@@ -43,6 +43,7 @@ export class MaintenanceRequestController {
         technician_id: req.query.technician_id,
         status: req.query.status,
         type: req.query.type,
+        priority: req.query.priority,
         overdue: req.query.overdue === 'true',
         search: req.query.search,
         limit: req.query.limit || 50,

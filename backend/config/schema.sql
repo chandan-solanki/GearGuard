@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS maintenance_requests (
   id INT AUTO_INCREMENT PRIMARY KEY,
   subject VARCHAR(255) NOT NULL,
   type ENUM('corrective', 'preventive') NOT NULL,
+  priority ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
   description TEXT,
   equipment_id INT NOT NULL,
   department_id INT NOT NULL,
@@ -144,6 +145,7 @@ CREATE TABLE IF NOT EXISTS maintenance_requests (
   INDEX idx_request_technician (technician_id),
   INDEX idx_request_status (status),
   INDEX idx_request_type (type),
+  INDEX idx_request_priority (priority),
   INDEX idx_request_scheduled_date (scheduled_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

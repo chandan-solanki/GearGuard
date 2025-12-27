@@ -19,7 +19,8 @@ export function HomeNavbar() {
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem("token")
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
     localStorage.removeItem("user")
     setUser(null)
     router.push("/signin")

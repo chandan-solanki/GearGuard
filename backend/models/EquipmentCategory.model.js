@@ -44,11 +44,10 @@ export class EquipmentCategoryModel {
     sql += ' ORDER BY name';
 
     // Pagination
-    const limit = parseInt(filters.limit) || 50;
-    const offset = parseInt(filters.offset) || 0;
-    sql += ' LIMIT ? OFFSET ?';
-    params.push(limit, offset);
-
+    const limit = parseInt(filters.limit, 10) || 50;
+    const offset = parseInt(filters.offset, 10) || 0;
+    sql += ` LIMIT ${limit} OFFSET ${offset}`;
+    
     const results = await query(sql, params);
     return results;
   }

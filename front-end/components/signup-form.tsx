@@ -137,8 +137,9 @@ export function SignupForm({
       }
 
       if (data.success) {
-        // Store JWT token in localStorage
-        localStorage.setItem("token", data.data.token)
+        // Store JWT tokens in localStorage
+        localStorage.setItem("accessToken", data.data.accessToken)
+        localStorage.setItem("refreshToken", data.data.refreshToken)
         localStorage.setItem("user", JSON.stringify(data.data.user))
 
         toast.success(data.message || "Registration successful!")

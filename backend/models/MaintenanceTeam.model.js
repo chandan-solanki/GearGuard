@@ -33,8 +33,9 @@ export class MaintenanceTeamModel {
     sql += ' ORDER BY mt.name ASC';
 
     if (filters.limit) {
-      sql += ' LIMIT ? OFFSET ?';
-      params.push(parseInt(filters.limit), parseInt(filters.offset || 0));
+      const limit = parseInt(filters.limit, 10) || 10;
+      const offset = parseInt(filters.offset, 10) || 0;
+      sql += ` LIMIT ${limit} OFFSET ${offset}`;
     }
 
     return await query(sql, params);
