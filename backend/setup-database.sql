@@ -1,15 +1,19 @@
--- ===========================================
--- GearGuard: Maintenance Tracker Database Schema
--- ===========================================
+-- ============================================
+-- GearGuard Database Setup Script
+-- Easy one-file database creation
+-- ============================================
 
--- Create Database
-CREATE DATABASE IF NOT EXISTS gearguard_db;
+-- Drop existing database if needed (CAUTION: This deletes all data!)
+DROP DATABASE IF EXISTS gearguard_db;
+
+-- Create fresh database
+CREATE DATABASE gearguard_db;
 USE gearguard_db;
 
 -- ===========================================
 -- 1️⃣ USERS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
@@ -24,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- ===========================================
 -- 2️⃣ REFRESH TOKENS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS refresh_tokens (
+CREATE TABLE refresh_tokens (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   token VARCHAR(500) NOT NULL UNIQUE,
@@ -38,7 +42,7 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 -- ===========================================
 -- 3️⃣ DEPARTMENTS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS departments (
+CREATE TABLE departments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL UNIQUE,
   description TEXT,
@@ -50,7 +54,7 @@ CREATE TABLE IF NOT EXISTS departments (
 -- ===========================================
 -- 4️⃣ MAINTENANCE_TEAMS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS maintenance_teams (
+CREATE TABLE maintenance_teams (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   department_id INT NOT NULL,
@@ -63,7 +67,7 @@ CREATE TABLE IF NOT EXISTS maintenance_teams (
 -- ===========================================
 -- 5️⃣ TECHNICIANS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS technicians (
+CREATE TABLE technicians (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL UNIQUE,
   team_id INT NOT NULL,
@@ -76,9 +80,9 @@ CREATE TABLE IF NOT EXISTS technicians (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ===========================================
--- 6️⃣ EQUIPMENT_CATEGORY TABLE
+-- 6️⃣ EQUIPMENT_CATEGORY TABLE (NEW!)
 -- ===========================================
-CREATE TABLE IF NOT EXISTS equipment_category (
+CREATE TABLE equipment_category (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL UNIQUE,
   responsible VARCHAR(255),
@@ -92,7 +96,7 @@ CREATE TABLE IF NOT EXISTS equipment_category (
 -- ===========================================
 -- 7️⃣ EQUIPMENT TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS equipment (
+CREATE TABLE equipment (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   serial_number VARCHAR(255) UNIQUE,
@@ -118,7 +122,7 @@ CREATE TABLE IF NOT EXISTS equipment (
 -- ===========================================
 -- 8️⃣ MAINTENANCE_REQUESTS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS maintenance_requests (
+CREATE TABLE maintenance_requests (
   id INT AUTO_INCREMENT PRIMARY KEY,
   subject VARCHAR(255) NOT NULL,
   type ENUM('corrective', 'preventive') NOT NULL,
@@ -150,7 +154,7 @@ CREATE TABLE IF NOT EXISTS maintenance_requests (
 -- ===========================================
 -- 9️⃣ MAINTENANCE_LOGS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS maintenance_logs (
+CREATE TABLE maintenance_logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   request_id INT NOT NULL,
   old_status VARCHAR(50),
@@ -167,7 +171,7 @@ CREATE TABLE IF NOT EXISTS maintenance_logs (
 -- ===========================================
 -- 🔟 ATTACHMENTS TABLE
 -- ===========================================
-CREATE TABLE IF NOT EXISTS attachments (
+CREATE TABLE attachments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   request_id INT NOT NULL,
   file_name VARCHAR(255) NOT NULL,
@@ -182,20 +186,19 @@ CREATE TABLE IF NOT EXISTS attachments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ===========================================
--- SEED DATA (Optional - for development)
+-- 📊 SEED DATA (Sample Data)
 -- ===========================================
 
 -- Insert default admin user (password: admin123)
+-- Note: In production, you should change this password!
 INSERT INTO users (name, email, password_hash, role) VALUES 
-('Admin User', 'admin@gearguard.com', '$2b$10$rX5EWQjQjQZJZqQZJZqQZuK8X5EWQjQjQZJZqQZuK8X5EWQj', 'admin')
-ON DUPLICATE KEY UPDATE name=name;
+('Admin User', 'admin@gearguard.com', '$2b$10$rX5EWQjQjQZJZqQZJZqQZuK8X5EWQjQjQZJZqQZJZqQZuK8X5EWQj', 'admin');
 
 -- Insert sample departments
 INSERT INTO departments (name, description) VALUES 
 ('IT Department', 'Information Technology and Systems'),
 ('Manufacturing', 'Production and Manufacturing Equipment'),
-('Facilities', 'Building Maintenance and Facilities')
-ON DUPLICATE KEY UPDATE name=name;
+('Facilities', 'Building Maintenance and Facilities');
 
 -- Insert sample equipment categories
 INSERT INTO equipment_category (name, responsible, company_name, description) VALUES 
@@ -203,5 +206,19 @@ INSERT INTO equipment_category (name, responsible, company_name, description) VA
 ('CNC Machine', 'Sarah Johnson', 'PrecisionCorp', 'Computer Numerical Control machines'),
 ('HVAC System', 'Mike Davis', 'ClimateControl Ltd', 'Heating, Ventilation, and Air Conditioning systems'),
 ('Generator', 'Emily Brown', 'PowerGen Solutions', 'Backup power generation equipment'),
-('Conveyor Belt', 'David Wilson', 'TransportTech', 'Material handling conveyor systems')
-ON DUPLICATE KEY UPDATE name=name;
+('Conveyor Belt', 'David Wilson', 'TransportTech', 'Material handling conveyor systems');
+
+-- Insert sample maintenance teams
+INSERT INTO maintenance_teams (name, department_id) VALUES 
+('Production Team A', 2),
+('IT Support Team', 1),
+('Facilities Team', 3);
+
+-- ===========================================
+-- ✅ DATABASE SETUP COMPLETE
+-- ===========================================
+
+SELECT '✅ Database created successfully!' as status;
+SELECT '📊 Total tables created: 10' as info;
+SELECT '👤 Default admin: admin@gearguard.com (password: admin123)' as credentials;
+SELECT '🎯 Ready to use! Start your server with: npm run dev' as next_step;

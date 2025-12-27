@@ -1,14 +1,14 @@
 {
-  "name": "express-mysql-backend",
+  "name": "gearguard-backend",
   "version": "1.0.0",
-  "description": "Scalable Express.js + MySQL backend with RBAC",
+  "description": "GearGuard: Maintenance Tracker - Scalable Express.js + MySQL backend with JWT Auth and RBAC",
   "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["express", "mysql", "jwt", "rbac", "rest-api"],
+  "keywords": ["express", "mysql", "jwt", "rbac", "rest-api", "maintenance", "gearguard"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,9 +17,11 @@
     "bcrypt": "^5.1.1",
     "jsonwebtoken": "^9.0.2",
     "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   }
 }
+

@@ -66,6 +66,45 @@ export class AuthController {
     }
   }
 
+  static async refreshToken(req, res, next) {
+    try {
+      const { refreshToken } = req.body;
+
+      if (!refreshToken) {
+        return res.status(400).json({
+          success: false,
+          message: 'Refresh token is required',
+        });
+      }
+
+      const result = await AuthService.refreshToken(refreshToken);
+
+      res.status(200).json({
+        success: true,
+        message: 'Token refreshed successfully',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async logout(req, res, next) {
+    try {
+      const { refreshToken } = req.body;
+
+      const result = await AuthService.logout(refreshToken);
+
+      res.status(200).json({
+        success: true,
+        message: 'Logout successful',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getProfile(req, res, next) {
     try {
       const user = await AuthService.getProfile(req.user.id);
@@ -78,4 +117,27 @@ export class AuthController {
       next(error);
     }
   }
+
+  static async updateProfile(req, res, next) {
+    try {
+      const { name, email, password } = req.body;
+      const profileData = {};
+
+      if (name) profileData.name = name;
+      if (email) profileData.email = email;
+      if (password) profileData.password = password;
+
+      const user = await AuthService.updateProfile(req.user.id, profileData);
+
+      res.status(200).json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+
+
