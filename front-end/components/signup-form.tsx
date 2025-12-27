@@ -32,7 +32,7 @@ interface FormData {
   email: string
   password: string
   confirmPassword: string
-  role: "admin" | "user"
+  role: "admin" | "technician" | "employee"
 }
 
 interface FormErrors {
@@ -54,7 +54,7 @@ export function SignupForm({
     email: "",
     password: "",
     confirmPassword: "",
-    role: "user",
+    role: "employee",
   })
   const [errors, setErrors] = useState<FormErrors>({})
 
@@ -146,8 +146,11 @@ export function SignupForm({
 
         // Role-based redirection
         setTimeout(() => {
-          if (data.data.user.role === "admin") {
+          const userRole = data.data.user.role
+          if (userRole === "admin" || userRole === "manager") {
             router.push("/dashboard")
+          } else if (userRole === "technician") {
+            router.push("/dashboard/technician")
           } else {
             router.push("/")
           }
@@ -220,7 +223,8 @@ export function SignupForm({
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="technician">Technician</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import {
+  IconCalendar,
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -9,14 +10,16 @@ import {
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconReport,
   IconSearch,
   IconSettings,
   IconUsers,
+  IconTool,
+  IconBuilding,
+  IconDeviceDesktop,
+  IconClipboardList,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "@/components/nav-documents"
@@ -41,29 +44,44 @@ const data = {
   },
   navMain: [
     {
+      title: "Maintenance",
+      url: "/dashboard/maintenance",
+      icon: IconClipboardList,
+    },
+    {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Maintenance Calendar",
+      url: "/dashboard/calendar",
+      icon: IconCalendar,
     },
     {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
+      title: "Equipment",
+      url: "/dashboard/equipment",
+      icon: IconDeviceDesktop,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
+      title: "Reporting",
+      url: "/dashboard/reporting",
+      icon: IconReport,
     },
     {
-      title: "Team",
-      url: "#",
+      title: "Teams",
+      url: "/dashboard/teams",
       icon: IconUsers,
+    },
+    {
+      title: "Departments",
+      url: "/dashboard/departments",
+      icon: IconBuilding,
+    },
+    {
+      title: "Technician Portal",
+      url: "/dashboard/technician",
+      icon: IconTool,
     },
   ],
   navClouds: [
@@ -160,9 +178,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/dashboard">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">GearGuard</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

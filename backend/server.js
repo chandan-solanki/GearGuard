@@ -106,6 +106,16 @@ app.get('/', (req, res) => {
         list: 'GET /api/attachments/:requestId',
         delete: 'DELETE /api/attachments/file/:id',
       },
+      technicians: {
+        list: 'GET /api/technicians',
+        getById: 'GET /api/technicians/:id',
+        update: 'PUT /api/technicians/:id',
+        myProfile: 'GET /api/technicians/me',
+        myRequests: 'GET /api/technicians/me/requests',
+        teamRequests: 'GET /api/technicians/me/team-requests',
+        myStats: 'GET /api/technicians/me/stats',
+        acceptRequest: 'PUT /api/technicians/me/accept-request/:requestId',
+      },
     },
   });
 });

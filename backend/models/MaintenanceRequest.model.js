@@ -193,6 +193,29 @@ export class MaintenanceRequestModel {
     return results[0].total;
   }
 
+  static async countByTechnician(technicianId, filters = {}) {
+    let sql = 'SELECT COUNT(*) as total FROM maintenance_requests WHERE technician_id = ?';
+    const params = [technicianId];
+
+    if (filters.status) {
+      sql += ' AND status = ?';
+      params.push(filters.status);
+    }
+
+    if (filters.type) {
+      sql += ' AND type = ?';
+      params.push(filters.type);
+    }
+
+    if (filters.priority) {
+      sql += ' AND priority = ?';
+      params.push(filters.priority);
+    }
+
+    const results = await query(sql, params);
+    return results[0].total;
+  }
+
   static async getCalendarView(filters = {}) {
     let sql = `
       SELECT mr.*, e.name as equipment_name, mt.name as team_name,

@@ -109,8 +109,11 @@ export function LoginForm({
 
         // Role-based redirection
         setTimeout(() => {
-          if (data.data.user.role === "admin") {
+          const userRole = data.data.user.role
+          if (userRole === "admin" || userRole === "manager") {
             router.push("/dashboard")
+          } else if (userRole === "technician") {
+            router.push("/dashboard/technician")
           } else {
             router.push("/")
           }

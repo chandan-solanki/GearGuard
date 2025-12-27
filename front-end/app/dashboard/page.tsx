@@ -60,13 +60,31 @@ interface ApiResponse {
   }
 }
 
+interface DashboardStats {
+  criticalEquipment: number
+  technicianLoad: number
+  totalTechnicians: number
+  assignedTechnicians: number
+  openRequests: number
+  overdueRequests: number
+}
+
 export default function Page() {
   const router = useRouter()
   const [requests, setRequests] = useState<MaintenanceRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState({ total: 0, limit: 20, offset: 0 })
   const [filters, setFilters] = useState({ status: "", search: "" })
+  const [stats, setStats] = useState<DashboardStats>({
+    criticalEquipment: 0,
+    technicianLoad: 0,
+    totalTechnicians: 0,
+    assignedTechnicians: 0,
+    openRequests: 0,
+    overdueRequests: 0,
+  })
 
   const fetchRequests = async () => {
     setIsLoading(true)
@@ -126,8 +144,80 @@ export default function Page() {
     }
   }
 
+  const fetchDashboardStats = async () => {
+    setIsLoadingStats(true)
+    try {
+      const accessToken = localStorage.getItem("accessToken")
+      if (!accessToken) return
+
+      // Fetch critical equipment (health < 30%)
+      const criticalEquipmentRes = await fetch(
+        "http://localhost:3001/api/equipment?health_max=30",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const criticalData = await criticalEquipmentRes.json()
+
+      // Fetch open requests (new + in_progress)
+      const openRequestsRes = await fetch(
+        "http://localhost:3001/api/requests?status=new",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const openData = await openRequestsRes.json()
+
+      const inProgressRes = await fetch(
+        "http://localhost:3001/api/requests?status=in_progress",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const inProgressData = await inProgressRes.json()
+
+      // Fetch overdue requests
+      const overdueRes = await fetch(
+        "http://localhost:3001/api/requests?overdue=true",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const overdueData = await overdueRes.json()
+
+      // Fetch team stats for technician load
+      const teamStatsRes = await fetch(
+        "http://localhost:3001/api/requests/stats/team",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      const teamStatsData = await teamStatsRes.json()
+
+      // Calculate technician load from team stats
+      let totalTechnicians = 0
+      let inProgressCount = 0
+      if (teamStatsData.success && teamStatsData.data) {
+        teamStatsData.data.forEach((team: any) => {
+          totalTechnicians += team.technician_count || 0
+          inProgressCount += team.in_progress || 0
+        })
+      }
+      const technicianLoad = totalTechnicians > 0 
+        ? Math.round((inProgressCount / totalTechnicians) * 100) 
+        : 0
+
+      const openCount = (openData.pagination?.total || 0) + (inProgressData.pagination?.total || 0)
+      const overdueCount = overdueData.pagination?.total || 0
+
+      setStats({
+        criticalEquipment: criticalData.pagination?.total || (criticalData.data?.length || 0),
+        technicianLoad,
+        totalTechnicians,
+        assignedTechnicians: inProgressCount,
+        openRequests: openCount,
+        overdueRequests: overdueCount,
+      })
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error)
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
+
   useEffect(() => {
     fetchRequests()
+    fetchDashboardStats()
   }, [])
 
   const getStatusBadge = (status: string) => {
@@ -197,8 +287,18 @@ export default function Page() {
                       <CardTitle className="text-red-900 dark:text-red-100">Critical Equipment</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-3xl font-bold text-red-900 dark:text-red-100">5 Units</div>
-                      <CardDescription className="text-red-700 dark:text-red-300">(Health &lt; 30%)</CardDescription>
+                      {isLoadingStats ? (
+                        <Skeleton className="h-10 w-24" />
+                      ) : (
+                        <>
+                          <div className="text-3xl font-bold text-red-900 dark:text-red-100">
+                            {stats.criticalEquipment} Units
+                          </div>
+                          <CardDescription className="text-red-700 dark:text-red-300">
+                            (Health &lt; 30%)
+                          </CardDescription>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -207,8 +307,18 @@ export default function Page() {
                       <CardTitle className="text-blue-900 dark:text-blue-100">Technician Load</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">85% Utilized</div>
-                      <CardDescription className="text-blue-700 dark:text-blue-300">(Assign Carefully)</CardDescription>
+                      {isLoadingStats ? (
+                        <Skeleton className="h-10 w-32" />
+                      ) : (
+                        <>
+                          <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+                            {stats.technicianLoad}% Utilized
+                          </div>
+                          <CardDescription className="text-blue-700 dark:text-blue-300">
+                            ({stats.assignedTechnicians}/{stats.totalTechnicians} Active)
+                          </CardDescription>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -217,8 +327,18 @@ export default function Page() {
                       <CardTitle className="text-green-900 dark:text-green-100">Open Requests</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-3xl font-bold text-green-900 dark:text-green-100">12 Pending</div>
-                      <CardDescription className="text-green-700 dark:text-green-300">3 Overdue</CardDescription>
+                      {isLoadingStats ? (
+                        <Skeleton className="h-10 w-28" />
+                      ) : (
+                        <>
+                          <div className="text-3xl font-bold text-green-900 dark:text-green-100">
+                            {stats.openRequests} Pending
+                          </div>
+                          <CardDescription className="text-green-700 dark:text-green-300">
+                            {stats.overdueRequests} Overdue
+                          </CardDescription>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
