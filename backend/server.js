@@ -1,3 +1,5 @@
+// Entry point for the API server. Sets up Express, middleware, database
+// initialization, routes, and error handling.
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/env.config.js';
@@ -8,18 +10,25 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-// Initialize database connection pool
+// Initialize database connection pool (singleton)
+// Reads DB config from `backend/config/env.config.js` which uses environment
+// variables. A pool is used to reuse connections and improve performance.
 createPool();
 
-// Initialize database tables (creates if not exists)
+// Ensure required tables exist and perform any simple DB init/migrations.
+// This runs at startup so the app can assume DB schema is present.
 await initDatabase();
 
-// Middleware
+// Common middleware
+// - CORS: allow browser requests from other origins (configure as needed)
+// - express.json(), express.urlencoded(): parse JSON and URL-encoded request bodies
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware (development)
+// Request logging middleware - enabled only in development to avoid verbose
+// logs in production. Logs method, path, and request payloads which is useful
+// while debugging API requests locally.
 if (config.nodeEnv === 'development') {
   app.use((req, res, next) => {
     console.log(`${req.method} ${req.path}`, {
@@ -31,10 +40,13 @@ if (config.nodeEnv === 'development') {
   });
 }
 
-// API Routes
+// Mount API routers under `/api`. The `routes` module wires all feature
+// sub-routers (auth, users, equipment, requests, etc.).
 app.use('/api', routes);
 
-// Root route
+// Root route provides a simple JSON payload describing the API and common
+// endpoints — useful for quick health checks or documentation during
+// development. Keep this lightweight and safe for public exposure.
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
@@ -120,7 +132,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler
+// 404 handler for unmatched routes - returns a JSON error response
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -128,10 +140,12 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler (must be last)
+// Global error handler - centralized error responses and logging
+// The `errorHandler` middleware will format errors from controllers/services
+// and return appropriate HTTP status codes and messages.
 app.use(errorHandler);
 
-// Start server
+// Start the HTTP server
 const PORT = config.port;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
