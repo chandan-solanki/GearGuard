@@ -6,7 +6,7 @@ This document provides complete examples for all API endpoints with sample reque
 
 ## 🔐 Authentication Endpoints
 
-### 1. Register New User
+### 1. Register New User api endpoint
 
 **Request:**
 ```http
