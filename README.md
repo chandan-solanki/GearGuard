@@ -21,6 +21,8 @@
 
 GearGuard is a full-stack maintenance tracking application designed to streamline equipment maintenance workflows in organizations. Built with modern technologies and best practices, it provides a robust platform for managing maintenance requests, equipment inventory, work orders, and technician assignments with role-based access control.
 
+### Video Link : https://drive.google.com/file/d/12OTvgH-gcCirjWwbYa23kVL0z2j83vqt/view?usp=drive_link
+
 ### Key Highlights
 - 🔐 **Secure Authentication** - JWT-based auth with access & refresh tokens
 - 👥 **Role-Based Access Control** - Admin, Manager, Technician, and Employee roles
