@@ -107,6 +107,8 @@ export class EquipmentModel {
     return results[0] || null;
   }
 
+
+  // update equipment details
   static async update(id, equipmentData) {
     const {
       name,

@@ -3,6 +3,8 @@ import { config } from '../config/env.config.js';
 import { AppError } from './errorHandler.js';
 import { UserModel } from '../models/User.model.js';
 
+
+// add  validation for token and user existence
 export const authenticate = async (req, res, next) => {
   try {
     // Get token from header
