@@ -8,7 +8,10 @@ export const config = {
   db: {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    // Default DB password for development. For security, prefer setting
+    // DB_PASSWORD in a local `.env` file and do NOT commit secrets to
+    // version control.
+    password: process.env.DB_PASSWORD || 'Hardik32@',
     database: process.env.DB_NAME || 'gearguard_db',
     port: process.env.DB_PORT || 3306,
   },

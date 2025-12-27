@@ -3,9 +3,10 @@ import { AuthService } from '../services/auth.service.js';
 export class AuthController {
   static async register(req, res, next) {
     try {
-      const { name, email, password, role } = req.body;
+      // Extract and normalize inputs
+      let { name, email, password, role } = req.body;
 
-      // Validation
+      // Basic presence checks
       if (!name || !email || !password) {
         return res.status(400).json({
           success: false,
@@ -13,21 +14,37 @@ export class AuthController {
         });
       }
 
+      name = String(name).trim();
+      email = String(email).trim().toLowerCase();
+
+      // Name validation
+      if (name.length < 2) {
+        return res.status(400).json({ success: false, message: 'Name must be at least 2 characters long' });
+      }
+
       // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
+        return res.status(400).json({ success: false, message: 'Invalid email format' });
+      }
+
+      // Password complexity: min 8 chars, mixed case, and at least one digit
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(String(password))) {
         return res.status(400).json({
           success: false,
-          message: 'Invalid email format',
+          message:
+            'Password must be at least 8 characters long and include uppercase, lowercase letters and a number',
         });
       }
 
-      // Password length validation
-      if (password.length < 6) {
-        return res.status(400).json({
-          success: false,
-          message: 'Password must be at least 6 characters long',
-        });
+      // Role validation (optional). Allowed roles: admin, manager, technician, employee
+      const allowedRoles = ['admin', 'manager', 'technician', 'employee'];
+      if (role) {
+        role = String(role).trim().toLowerCase();
+        if (!allowedRoles.includes(role)) {
+          return res.status(400).json({ success: false, message: 'Invalid role' });
+        }
       }
 
       const result = await AuthService.register({ name, email, password, role });
