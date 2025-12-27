@@ -1,5 +1,7 @@
 import express from 'express';
 import { AuthController } from '../controllers/auth.controller.js';
+import { validateRequest } from '../middleware/validator.middleware.js';
+import { loginSchema } from '../validators/auth.validator.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -16,7 +18,7 @@ router.post('/register', AuthController.register);
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', AuthController.login);
+router.post('/login', validateRequest(loginSchema), AuthController.login);
 
 /**
  * @route   POST /api/auth/refresh-token
