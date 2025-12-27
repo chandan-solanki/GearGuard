@@ -18,6 +18,8 @@ export function HomeNavbar() {
     }
   }, [])
 
+
+  // handle logout button click
   const handleLogout = () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
